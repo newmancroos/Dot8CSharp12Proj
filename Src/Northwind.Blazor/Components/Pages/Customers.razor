@@ -1,0 +1,75 @@
+﻿@page "/customers/{country?}"
+@using Northwind.Balazer.Services
+@using Northwind.EntityModels
+@inject INorthwindService _service
+@attribute [StreamRendering(true)]
+<h3>
+    Customers @(string.IsNullOrWhiteSpace(Country) ? "Worldwide" : "in" + Country )
+    <div class="form-group">
+        <a class="btn btn-info" href="createcustomer">
+            <i class="bi bi-plus-square"></i> Create New
+        </a>
+    </div>
+</h3>
+@if (customers is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Company Name</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Customer customer in customers)
+            {
+                <tr>
+                    <td>@customer.CustomerId</td>
+                    <td>@customer.City</td>
+                    <td>
+                        @customer.Address <br/>
+                        @customer.City <br/>
+                        @customer.PostalCode<br/>
+                        @customer.Country
+                    </td>
+                    <td>@customer.Phone</td>
+                    <td>
+                        <a class="btn btn-info" href="editcustomer/@customer.CustomerId">
+                            <i class="bi bi-pencil"></i> 
+                        </a>
+                        <a class="btn btn-danger" href="deletecustomer/@customer.CustomerId">
+                        <i class="bi bi-trash"></i>    
+                        </a>
+
+                    </td>
+                </tr>    
+            }
+        </tbody>
+    </table>
+}
+@code {
+    [Parameter]
+    public string? Country { get; set; }
+
+    private IEnumerable<Customer>? customers;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Delay(1000);
+        if (string.IsNullOrWhiteSpace(Country))
+        {
+            customers = await _service.GetCustomersAsync();
+        }
+        else
+        {
+            customers = await _service.GetCustomersAsync(Country);
+        }
+    }
+}

@@ -1,0 +1,32 @@
+﻿@rendermode RenderMode.InteractiveServer
+@page "/deletecustomer/{customerid}"
+@using Northwind.Balazer.Services
+@using Northwind.EntityModels
+
+@inject INorthwindService _service
+@inject NavigationManager _navigation
+
+<h3>Delete Customer</h3>
+<CustomerDetail ButtonText="Delete" ButtonStyle="danger" Customer="@customer" OnValidSubmit="@Delete" />
+
+
+@code {
+    [Parameter]
+    public string CustomerId { get; set; } = null!;
+
+    private Customer? customer = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        customer = await _service.GetCustomerAsync(CustomerId);
+    }
+
+    private async Task Delete()
+    {
+        if (customer is not null)
+        {
+            await _service.DeleteCustomerAsync(customer.CustomerId);
+        }
+        _navigation.NavigateTo("customers");
+    }
+}
